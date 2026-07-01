@@ -22,5 +22,15 @@
       "Read(**/poetry.lock)",
       "Read(**/*.lock)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Bash",
+        "hooks": [
+          { "type": "command", "command": "python \"<PATH-TO-REPO>/setup/hooks/token_saver_hook.py\"" }
+        ]
+      }
+    ]
   }
 }

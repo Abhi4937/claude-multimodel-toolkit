@@ -43,6 +43,7 @@ Launch the brain terminal as **`opus`** (routes its subagents → Sonnet, sparin
 6. Persist: cross-terminal facts → `knowledge/`; Opus-only notes → native memory.
 
 ## Session hygiene
+- **Automatic guards:** a PreToolUse hook (`setup/hooks/token_saver_hook.py`) auto-blocks/redirects expensive reads — big files (use offset/limit), PDFs/Office (→ markdown), notebooks/CSV/logs (→ slim), re-reads, and verbose/recursive Bash. Escape hatch: add `raw` to the path, make `<file>.rawread`, or `TOKENSAVER_OFF=1`. See [[token-saver-hooks]].
 - **Verbose output eating context?** Read it, then **`/rewind`** that turn to reclaim tokens (cache-friendly). Truncate noisy commands at the source (`| grep … | tail`). `MAX_MCP_OUTPUT_TOKENS` caps MCP output.
 - **Before `/compact` or closing:** run **`/log-session`** → saves a structured summary to `C:\dev\_hub\sessions\<project>\` (local, never committed) + appends to `sessions/INDEX.md`.
 - **To recall past work:** run **`/recall <topic>`** → greps `sessions/INDEX.md` + logs + knowledge and returns **only matching snippets + paths** (never loads whole logs). This is the cheap "search your history" — like a mini graphify over your notes.

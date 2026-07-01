@@ -35,6 +35,14 @@ The repo root IS the hub. Terminals reference `tasks/`, `knowledge/`, `scripts/n
 pip install openai   # then: python scripts\nv_batch.py -i "..." <file>
 ```
 
+## 5b. Token-saver hooks (8 automatic guards)
+```powershell
+pip install "markitdown[all]"   # for PDF/Office/HTML -> markdown conversion
+```
+Register the `PreToolUse` hook: merge the `hooks` block from `settings.permissions-snippet.json`
+into `~/.claude/settings.json`, pointing `command` at `setup/hooks/token_saver_hook.py` (absolute path).
+Details + escape hatches: `knowledge/token-saver-hooks.md`. Disable per-session with `TOKENSAVER_OFF=1`.
+
 ## 6. (Optional) GCP billing kill-switch
 See `gcp-killswitch/DEPLOY.md`. Only needed if you use a paid GCP service (e.g. Claude-on-Vertex).
 
