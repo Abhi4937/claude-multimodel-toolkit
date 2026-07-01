@@ -1,0 +1,21 @@
+# private / transient (never pushed)
+sessions/
+scratch/
+tasks/*.md
+!tasks/_TEMPLATE.md
+
+# defensive: never commit secrets
+*.key
+*.pem
+*.pfx
+id_rsa
+.env
+.env.*
+credentials.json
+secrets.yaml
+
+# python / os cruft
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

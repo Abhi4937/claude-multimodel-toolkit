@@ -1,0 +1,34 @@
+# Per-project CLAUDE.md TEMPLATE
+# Copy this into a repo as `<repo>/CLAUDE.md`, fill the <...> placeholders, delete these two comment lines.
+# It loads automatically in every session of THAT repo — for opus AND claude-glm.
+# Keep it lean (<~40 lines); it rides in the cached prefix every turn.
+
+# CLAUDE.md — <project name>
+
+<one-line purpose, e.g. "Intraday options backtester + live trader.">
+
+## Structure (where things live)
+- <src/...>        — <what>
+- <src/...>        — <what>
+- <tests/>         — <test suite>
+- <config/ or .env>— <config; do not read secrets>
+
+## Navigation rules (apply always — token discipline)
+- Use **serena** `find_symbol` / `get_symbols_overview` / go-to-def to locate code.
+  Do NOT read whole files, and never read node_modules / dist / build / lockfiles / .env.
+- Read only with `offset`/`limit` when you must; never re-read a file already in context.
+- **Edit only the files named in the task.** Don't explore beyond the scope you were given.
+- Prefer a scoped grep/symbol lookup over opening many files.
+
+## Build / test
+- Install: <cmd>
+- Test:   <exact cmd, e.g. `pytest tests/ -q`>   ← run this to verify changes
+- Lint/format: <cmd>
+
+## Risk-critical (Opus review mandatory)
+- <order routing / position sizing / money-moving logic / auth-secrets>: even if GLM wrote it,
+  it MUST be reviewed by Opus before it lands. Never skip this gate.
+
+## Notes
+- Secrets live in env vars / git-ignored files — never read or print them.
+- One-time per repo: run **serena onboarding** so it caches a project overview (persists across sessions).

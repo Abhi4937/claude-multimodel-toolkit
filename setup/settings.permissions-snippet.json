@@ -1,0 +1,26 @@
+{
+  "_comment": "Merge these keys into ~/.claude/settings.json. NEVER commit real API-key values (e.g. GEMINI_API_KEY) — set those locally only.",
+  "env": {
+    "MAX_THINKING_TOKENS": "8000",
+    "MAX_MCP_OUTPUT_TOKENS": "10000"
+  },
+  "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/credentials.json)",
+      "Read(**/secrets.yaml)",
+      "Read(**/*.pem)",
+      "Read(**/id_rsa)",
+      "Read(**/node_modules/**)",
+      "Read(**/dist/**)",
+      "Read(**/build/**)",
+      "Read(**/.git/objects/**)",
+      "Read(**/package-lock.json)",
+      "Read(**/yarn.lock)",
+      "Read(**/pnpm-lock.yaml)",
+      "Read(**/poetry.lock)",
+      "Read(**/*.lock)"
+    ]
+  }
+}

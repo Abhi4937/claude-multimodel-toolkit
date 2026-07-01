@@ -1,0 +1,42 @@
+# Install — deploy this toolkit into a machine
+
+Reproduces the multi-model + token-saving setup. Nothing here contains secrets — you supply keys via `setx`.
+
+## 1. Commands + skill → `~/.claude/`
+```powershell
+Copy-Item setup\commands\*.md            $env:USERPROFILE\.claude\commands\ -Force
+Copy-Item setup\skills\token-model-routing -Destination $env:USERPROFILE\.claude\skills\ -Recurse -Force
+```
+
+## 2. settings.json
+Merge `setup/settings.permissions-snippet.json` (env caps + `permissions.deny`) into `~/.claude/settings.json`.
+Do NOT paste any real API-key values into a committed file.
+
+## 3. Terminal wrappers
+Dot-source `setup/model-profiles.ps1` from your PowerShell `$PROFILE`:
+```powershell
+'. C:\path\to\model-profiles.ps1' | Add-Content $PROFILE
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned   # so the profile loads
+```
+Then set your keys (local only, never committed):
+```powershell
+setx ZAI_KEY 'your-zai-coding-plan-key'
+setx NVIDIA_API_KEY 'nvapi-...'
+# (optional Vertex, real money) setx ANTHROPIC_VERTEX_PROJECT_ID '...'; setx CLOUD_ML_REGION 'us-east5'
+```
+Gives you: `opus`, `claude-glm`, `agy` (Antigravity CLI, installed separately), `claude-vertex` (off by default).
+
+## 4. Hub
+The repo root IS the hub. Terminals reference `tasks/`, `knowledge/`, `scripts/nv_batch.py`, `STATE.md` by absolute path.
+`sessions/` (logs), `scratch/`, and live `tasks/*.md` are git-ignored (local only).
+
+## 5. NVIDIA chore worker
+```powershell
+pip install openai   # then: python scripts\nv_batch.py -i "..." <file>
+```
+
+## 6. (Optional) GCP billing kill-switch
+See `gcp-killswitch/DEPLOY.md`. Only needed if you use a paid GCP service (e.g. Claude-on-Vertex).
+
+## What NOT to commit
+API keys, `~/.claude/settings.json` (has real keys), session logs, live task notes. The `.gitignore` guards these.
