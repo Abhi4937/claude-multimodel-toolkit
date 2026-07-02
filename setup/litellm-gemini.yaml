@@ -1,0 +1,25 @@
+# LiteLLM proxy config — exposes Gemini 3.1 Pro (Vertex) on an Anthropic-compatible endpoint
+# so Claude Code (claude-gemini) can run Gemini as a full agent.
+# Auth: your gcloud ADC (application-default login). Funded by GCP credits, kill-switch capped.
+# Start:  litellm --config litellm-gemini.yaml --port 4000
+
+model_list:
+  - model_name: gemini-3.1-pro
+    litellm_params:
+      model: vertex_ai/gemini-3.1-pro-preview
+      vertex_project: "gemini-for-claude-code-500917"
+      vertex_location: "global"
+  - model_name: gemini-flash
+    litellm_params:
+      model: vertex_ai/gemini-2.5-flash
+      vertex_project: "gemini-for-claude-code-500917"
+      vertex_location: "global"
+
+litellm_settings:
+  drop_params: true
+  # Gemini 3.1 Pro is a THINKING model; ensure enough output room so reasoning
+  # tokens don't starve the visible answer.
+  max_tokens: 32000
+
+general_settings:
+  master_key: "sk-gemini-local"

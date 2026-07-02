@@ -36,6 +36,46 @@ function ytnotes {
 }
 
 # ---------------------------------------------------------------------------
+# gemini — ask Gemini 3.1 Pro (Vertex Express, credit-funded). NO Claude tokens.
+#   gemini "explain gamma exposure"
+#   gemini --file report.md "summarize the risks"
+#   type notes.txt | gemini "make bullet points"
+# ---------------------------------------------------------------------------
+function gemini {
+    python "C:\dev\_hub\scripts\ask_gemini.py" @args
+}
+
+# ---------------------------------------------------------------------------
+# claude-gemini — Gemini 3.1 Pro as a full Claude Code AGENT (via LiteLLM proxy -> Vertex).
+# Auto-starts the proxy on :4000 if not running. Funded by GCP credits, kill-switch capped.
+# NOTE: more experimental than claude-glm (Anthropic->Gemini tool-call translation).
+# ---------------------------------------------------------------------------
+function claude-gemini {
+    $port = 4000
+    $cfg  = "C:\dev\_hub\setup\litellm-gemini.yaml"
+    if (-not (Test-NetConnection localhost -Port $port -InformationLevel Quiet -WarningAction SilentlyContinue)) {
+        Write-Host "Starting LiteLLM Gemini proxy on :$port ..." -ForegroundColor Cyan
+        $env:PYTHONUTF8 = "1"; $env:PYTHONIOENCODING = "utf-8"
+        $lit = "$env:LOCALAPPDATA\Programs\Python\Python312\Scripts\litellm.exe"
+        Start-Process -FilePath $lit -ArgumentList "--config `"$cfg`" --port $port" -WindowStyle Hidden | Out-Null
+        for ($i=0; $i -lt 40; $i++){ Start-Sleep 1; if (Test-NetConnection localhost -Port $port -InformationLevel Quiet -WarningAction SilentlyContinue){ break } }
+    }
+    $env:ANTHROPIC_BASE_URL             = "http://localhost:$port"
+    $env:ANTHROPIC_AUTH_TOKEN           = "sk-gemini-local"
+    $env:ANTHROPIC_DEFAULT_SONNET_MODEL = "gemini-3.1-pro"
+    $env:ANTHROPIC_DEFAULT_OPUS_MODEL   = "gemini-3.1-pro"
+    $env:ANTHROPIC_DEFAULT_HAIKU_MODEL  = "gemini-flash"
+    $env:CLAUDE_CODE_SUBAGENT_MODEL     = "gemini-flash"
+    $env:API_TIMEOUT_MS                 = "3000000"
+    try { claude --model "gemini-3.1-pro" @args }
+    finally {
+        Remove-Item Env:ANTHROPIC_BASE_URL, Env:ANTHROPIC_AUTH_TOKEN, Env:ANTHROPIC_DEFAULT_SONNET_MODEL, `
+                    Env:ANTHROPIC_DEFAULT_OPUS_MODEL, Env:ANTHROPIC_DEFAULT_HAIKU_MODEL, `
+                    Env:CLAUDE_CODE_SUBAGENT_MODEL, Env:API_TIMEOUT_MS -ErrorAction SilentlyContinue
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Profile 2: GLM-5.2 heavy coding worker (Z.ai Coding Plan, direct endpoint)
 # USE FOR: website coding, refactors, tests, backtester, boilerplate
 # ---------------------------------------------------------------------------

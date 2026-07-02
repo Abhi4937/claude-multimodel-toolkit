@@ -50,8 +50,18 @@ winget install --id Gyan.FFmpeg     # for --snaps
 ```
 `scripts/yt_notes.py` turns a video into detailed research notes + chapter snapshots, saved to your
 Obsidian vault. The `ytnotes` PowerShell wrapper (in model-profiles.ps1) runs it:
-`ytnotes "URL" --research --snaps 4 --models nvidia,glm,gemini`. Keys: NVIDIA_API_KEY (free),
-ZAI_KEY, GEMINI_NOTES_KEY. Zero Claude tokens.
+`ytnotes "URL" --research --snaps 4 --models nvidia,glm,vertex`. Keys: NVIDIA_API_KEY (free),
+ZAI_KEY, GEMINI_NOTES_KEY (Vertex Express). Zero Claude tokens. Also `scripts/ask_gemini.py` (`gemini` wrapper).
+
+## 5d. Gemini as a Claude Code agent (claude-gemini)
+```powershell
+pip install "litellm[proxy]" google-auth
+gcloud auth application-default login   # ADC for Vertex
+```
+`setup/litellm-gemini.yaml` exposes Vertex Gemini 3.1 Pro on an Anthropic endpoint (:4000).
+The `claude-gemini` wrapper auto-starts the proxy and launches Claude Code on Gemini.
+Funded by GCP credits, kill-switch capped. Recipe: `knowledge/gemini-vertex-express.md`.
+Note: needs `PYTHONUTF8=1` (LiteLLM banner has a Windows cp1252 bug).
 
 ## 6. (Optional) GCP billing kill-switch
 See `gcp-killswitch/DEPLOY.md`. Only needed if you use a paid GCP service (e.g. Claude-on-Vertex).
