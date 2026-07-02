@@ -36,6 +36,9 @@ MODELS = {
                "keys": ["ZAI_KEY"], "model": "glm-5.2"},
     "gemini": {"base": "https://generativelanguage.googleapis.com/v1beta/openai/",
                "keys": ["GEMINI_NOTES_KEY", "GEMINI_API_KEY"], "model": "gemini-3.1-pro-preview"},
+    # Gemini 3.1 Pro on VERTEX via Express API key (funded by GCP credits, no rate wall):
+    "vertex": {"vertex_express": True,
+               "keys": ["GEMINI_NOTES_KEY"], "model": "gemini-3.1-pro-preview"},
 }
 
 
@@ -183,11 +186,30 @@ NOTES_SYSTEM = (
 )
 
 
+def call_vertex_gemini(model, system, user, key):
+    """Gemini on Vertex via Express API key (raw REST; stdlib only, no Expect:100 quirk)."""
+    import urllib.request
+    import json as _json
+    url = f"https://aiplatform.googleapis.com/v1/publishers/google/models/{model}:generateContent?key={key}"
+    payload = {
+        "systemInstruction": {"parts": [{"text": system}]},
+        "contents": [{"role": "user", "parts": [{"text": user}]}],
+        "generationConfig": {"temperature": 0.3, "maxOutputTokens": 8000},
+    }
+    req = urllib.request.Request(url, data=_json.dumps(payload).encode("utf-8"),
+                                headers={"Content-Type": "application/json"}, method="POST")
+    with urllib.request.urlopen(req, timeout=180) as resp:
+        data = _json.loads(resp.read().decode("utf-8"))
+    return data["candidates"][0]["content"]["parts"][0]["text"]
+
+
 def call_model(provider, system, user):
     cfg = MODELS[provider]
     key = next((os.environ[k] for k in cfg["keys"] if os.environ.get(k)), None)
     if not key:
         raise RuntimeError(f"{provider}: no API key set ({'/'.join(cfg['keys'])})")
+    if cfg.get("vertex_express"):
+        return call_vertex_gemini(cfg["model"], system, user, key)
     from openai import OpenAI
     client = OpenAI(base_url=cfg["base"], api_key=key)
     r = client.chat.completions.create(
