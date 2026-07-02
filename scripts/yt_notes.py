@@ -174,7 +174,16 @@ def snapshots(url, meta, n, outdir):
 
 
 # ---------- LLM ----------
-def summarize(provider, prompt):
+NOTES_SYSTEM = (
+    "You are an expert researcher and study-note writer. From the video transcript "
+    "(and any web-research context), produce DETAILED markdown study notes - NOT a shallow "
+    "summary. Extract and EXPLAIN key concepts, definitions, mechanisms, examples, numbers, "
+    "and actionable takeaways. Use clear headings and bullet structure. If web research is "
+    "provided, weave it in and end with a '## Further context & sources' section. Be thorough."
+)
+
+
+def call_model(provider, system, user):
     cfg = MODELS[provider]
     key = next((os.environ[k] for k in cfg["keys"] if os.environ.get(k)), None)
     if not key:
@@ -183,17 +192,49 @@ def summarize(provider, prompt):
     client = OpenAI(base_url=cfg["base"], api_key=key)
     r = client.chat.completions.create(
         model=cfg["model"], temperature=0.3, max_tokens=8000,
-        messages=[
-            {"role": "system", "content":
-                "You are an expert researcher and study-note writer. From the video transcript "
-                "(and any web-research context), produce DETAILED markdown study notes - NOT a shallow "
-                "summary. Extract and EXPLAIN key concepts, definitions, mechanisms, examples, numbers, "
-                "and actionable takeaways. Use clear headings and bullet structure. If web research is "
-                "provided, weave it in and end with a '## Further context & sources' section. Be thorough."},
-            {"role": "user", "content": prompt},
-        ],
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
     )
     return r.choices[0].message.content
+
+
+def summarize(provider, prompt):
+    return call_model(provider, NOTES_SYSTEM, prompt)
+
+
+def hms(sec):
+    sec = int(sec)
+    return f"{sec // 3600}:{(sec % 3600) // 60:02d}:{sec % 60:02d}"
+
+
+def chunk_snippets(snips, budget):
+    """Split transcript snippets into ~budget-char chunks; return (t0, t1, text)."""
+    chunks, cur, clen = [], [], 0
+    start = snips[0]["start"] if snips else 0
+    for s in snips:
+        cur.append(s)
+        clen += len(s["text"]) + 1
+        if clen >= budget:
+            end = s["start"] + s.get("duration", 0)
+            chunks.append((start, end, " ".join(x["text"] for x in cur)))
+            cur, clen, start = [], 0, end
+    if cur:
+        end = cur[-1]["start"] + cur[-1].get("duration", 0)
+        chunks.append((start, end, " ".join(x["text"] for x in cur)))
+    return chunks
+
+
+def summarize_long(provider, meta, snips, research_text, budget=60000):
+    chunks = chunk_snippets(snips, budget)
+    parts = []
+    for i, (t0, t1, text) in enumerate(chunks, 1):
+        log(f"  {provider}: part {i}/{len(chunks)} ({hms(t0)}-{hms(t1)})")
+        user = (f"This is PART {i} of {len(chunks)} of the video '{meta['title']}', "
+                f"covering {hms(t0)}-{hms(t1)}.\n\n## TRANSCRIPT (this part)\n{text}")
+        if i == len(chunks) and research_text:
+            user += "\n\n## WEB RESEARCH CONTEXT (integrate + add a sources section)\n" + research_text[:20000]
+        user += "\n\nWrite DETAILED study notes for THIS part now (headings, concepts, examples, takeaways)."
+        parts.append(f"## Part {i} - {hms(t0)} to {hms(t1)}\n\n" + call_model(provider, NOTES_SYSTEM, user))
+    return "\n\n".join(parts)
 
 
 def build_prompt(meta, transcript_text, research_text):
@@ -252,11 +293,17 @@ def main():
         log(f"extracting {args.snaps} snapshots...")
         shots = snapshots(args.url, meta, args.snaps, os.path.join(args.vault, "assets"))
 
+    CHUNK_CHARS = 60000
+    is_long = len(ttext) > CHUNK_CHARS * 1.3
     prompt = build_prompt(meta, ttext, research_text)
     for prov in models:
         try:
-            log(f"summarizing with {prov}...")
-            notes = summarize(prov, prompt)
+            if is_long:
+                log(f"summarizing with {prov} (chunked - {len(ttext)} chars, whole video)...")
+                notes = summarize_long(prov, meta, tr, research_text, CHUNK_CHARS)
+            else:
+                log(f"summarizing with {prov}...")
+                notes = summarize(prov, prompt)
             path = write_note(args.vault, meta, notes, prov, shots)
             print(f"WROTE [{prov}] -> {path}")
         except Exception as e:
