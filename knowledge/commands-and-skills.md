@@ -11,6 +11,17 @@ See also [[how-to-operate]] · [[token-model-routing (skill)]].
 | **`/token-report`** | Runs `npx ccusage daily` → summarizes today's & this month's cost by model | Checking spend |
 | **`/log-session [title]`** | Writes a structured session log (discussed · built · files changed · decisions & why · issues & fixes · redo steps · verified vs pending · tools · studies · links · next) to `C:\dev\_hub\sessions\<project>\`, and appends a tagged line to `sessions/INDEX.md`. **Local, never pushed to GitHub** | Before `/compact` or closing |
 | **`/recall <topic>`** | Greps `sessions/INDEX.md` + logs + knowledge, returns **only matching snippets + paths** (never whole files) | Finding past work cheaply |
+| **`/gemini <q>`** | Ask **Gemini 3.1 Pro** (Vertex, credit-funded) from inside a Claude session | second opinion / offload a reasoning task |
+
+## PowerShell terminal wrappers (in `model-profiles.ps1`, dot-sourced from $PROFILE)
+| Wrapper | Launches |
+|---|---|
+| `opus` | Opus 4.8 brain (subagents→Sonnet) |
+| `claude-glm` | GLM-5.2 coding agent (z.ai) |
+| `claude-gemini` | Gemini 3.1 Pro agent (LiteLLM proxy → Vertex; auto-starts proxy :4000) |
+| `agy` | Gemini 3.1 Pro (Antigravity) |
+| `gemini "..."` | one-shot Gemini 3.1 Pro (Vertex), zero Claude tokens |
+| `ytnotes "URL" ...` | YouTube → notes pipeline (nvidia/glm/vertex) |
 
 ## Skill (`~/.claude/skills/`)
 | Skill | Function | Activation |

@@ -1,6 +1,6 @@
 ---
 from: opus
-to: claude-glm          # claude-glm | agy | claude-vertex | nv
+to: claude-glm          # claude-glm | claude-gemini | agy | nv
 status: todo            # todo → doing → done
 created: 2026-07-02
 ---

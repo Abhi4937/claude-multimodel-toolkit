@@ -9,6 +9,8 @@ Readable by any terminal (opus / claude-glm / agy). Full rules: the `token-model
 | `opus` (or `claude`) | Opus 4.8 (Pro) | flat | **brain** — architecture, plan mode, risk-critical review, hard bugs |
 | `claude-glm` | GLM-5.2 (1M ctx) | $16 flat | coding, refactors, tests, backtester, strategies, boilerplate |
 | `agy` | Gemini 3.1 Pro | free (Jio) | research, long-context, whole-repo, video→notes, web |
+| `claude-gemini` | Gemini 3.1 Pro (Vertex) | GCP credits (kill-switch) | Gemini as a Claude Code **agent** (LiteLLM proxy :4000; experimental) |
+| `gemini` / `/gemini` · `ytnotes --models vertex` | Gemini 3.1 Pro (Vertex) | credits | one-shot Q&A / notes pipeline |
 | `nv_batch.py` | deepseek-v4-pro | free (NVIDIA) | mechanical transforms (rename/format/convert) |
 | `claude-vertex` | Claude on Vertex | **REAL money — off by default** (GCP credits don't cover Claude) | only if knowingly paying |
 
@@ -19,6 +21,7 @@ Launch the brain terminal as **`opus`** (routes its subagents → Sonnet, sparin
 |---|---|---|---|
 | `opus` / `claude` | ✅ full | ✅ | shared config + hub |
 | `claude-glm` | ✅ full (same Claude Code) — nudge GLM to actually use them | ❌ (z.ai auth ≠ Anthropic) | shared config + hub |
+| `claude-gemini` | ✅ full (Claude Code via proxy) — nudge it to use tools | ❌ (proxy auth ≠ Anthropic) | shared config + hub |
 | `agy` | ❌ different tool — no Claude Code MCPs | ❌ | **files only** — the hub + repo |
 
 - `opus` + `claude-glm` share the same `~/.claude` → same serena, LSPs, skills; only Anthropic-account

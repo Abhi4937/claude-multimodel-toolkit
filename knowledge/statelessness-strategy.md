@@ -17,6 +17,7 @@ Rule: if a fact must outlive the session → write it (native memory or `knowled
 |---|---|---|---|
 | `opus` / `claude` | ✅ full | ✅ | shared config + hub |
 | `claude-glm` | ✅ full (same Claude Code) — nudge GLM to use them | ❌ (z.ai auth, not Anthropic) | shared config + hub |
+| `claude-gemini` | ✅ full (Claude Code via proxy) | ❌ (proxy auth, not Anthropic) | shared config + hub |
 | `agy` | ❌ different tool (no Claude Code MCPs) | ❌ | **files only** — the hub + repo |
 
 - `opus` and `claude-glm` share the same `~/.claude` config → same serena, LSPs, skills. Only the
