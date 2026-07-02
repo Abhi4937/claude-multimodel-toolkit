@@ -27,6 +27,15 @@ function opus {
 }
 
 # ---------------------------------------------------------------------------
+# ytnotes — YouTube -> detailed research notes -> Obsidian (NO Claude; free/cheap).
+# Uses NVIDIA_API_KEY / ZAI_KEY / GEMINI_NOTES_KEY from your user env.
+#   ytnotes "https://youtu.be/XXXX" --research --snaps 4 --models nvidia,glm,gemini
+# ---------------------------------------------------------------------------
+function ytnotes {
+    python "C:\dev\_hub\scripts\yt_notes.py" @args
+}
+
+# ---------------------------------------------------------------------------
 # Profile 2: GLM-5.2 heavy coding worker (Z.ai Coding Plan, direct endpoint)
 # USE FOR: website coding, refactors, tests, backtester, boilerplate
 # ---------------------------------------------------------------------------

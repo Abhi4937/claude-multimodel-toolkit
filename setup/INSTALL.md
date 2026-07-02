@@ -43,6 +43,16 @@ Register the `PreToolUse` hook: merge the `hooks` block from `settings.permissio
 into `~/.claude/settings.json`, pointing `command` at `setup/hooks/token_saver_hook.py` (absolute path).
 Details + escape hatches: `knowledge/token-saver-hooks.md`. Disable per-session with `TOKENSAVER_OFF=1`.
 
+## 5c. YouTube -> notes pipeline (no Claude, free)
+```powershell
+pip install yt-dlp youtube-transcript-api ddgs openai
+winget install --id Gyan.FFmpeg     # for --snaps
+```
+`scripts/yt_notes.py` turns a video into detailed research notes + chapter snapshots, saved to your
+Obsidian vault. The `ytnotes` PowerShell wrapper (in model-profiles.ps1) runs it:
+`ytnotes "URL" --research --snaps 4 --models nvidia,glm,gemini`. Keys: NVIDIA_API_KEY (free),
+ZAI_KEY, GEMINI_NOTES_KEY. Zero Claude tokens.
+
 ## 6. (Optional) GCP billing kill-switch
 See `gcp-killswitch/DEPLOY.md`. Only needed if you use a paid GCP service (e.g. Claude-on-Vertex).
 
